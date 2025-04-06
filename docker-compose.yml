@@ -1,0 +1,52 @@
+version: "3.9"
+# Define a versão do Docker Compose. 3.9 é estável e compatível com os recursos modernos.
+
+services:
+  rabbitmq:
+    build:
+      context: .
+      # Define que o Dockerfile está no diretório atual.
+      args:
+        RABBITMQ_VERSION: ${RABBITMQ_VERSION}
+        # Passa a versão do RabbitMQ definida no .env para o build.
+
+    image: rabbitmq-custom:${RABBITMQ_VERSION}
+    # Nomeia a imagem criada com base na versão fornecida.
+
+    container_name: ${RABBITMQ_CONTAINER_NAME}
+    # Define o nome do container conforme a variável de ambiente.
+
+    restart: unless-stopped
+    # Reinicia o container automaticamente, exceto se ele for parado manualmente.
+
+    ports:
+      - "5672:5672"    # Porta para comunicação com aplicações
+      - "15672:15672"  # Porta do painel de administração
+
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      # Define o usuário do RabbitMQ usando a variável do .env.
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      # Define a senha do RabbitMQ usando a variável do .env.
+
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      # Monta o volume para persistência dos dados do RabbitMQ.
+
+    env_file:
+      - .env
+      # Carrega as variáveis de ambiente a partir do arquivo .env.
+
+    networks:
+      - pyservice_default
+      # Conecta o container à rede personalizada pyservice_default.
+
+volumes:
+  rabbitmq_data:
+  # Define o volume nomeado usado para persistência dos dados do RabbitMQ.
+
+networks:
+  pyservice_default:
+    name: pyservice_default
+    external: true
+    # Usa uma rede já existente chamada pyservice_default, útil para conectar com outros containers.
