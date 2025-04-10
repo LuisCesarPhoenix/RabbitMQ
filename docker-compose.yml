@@ -1,5 +1,5 @@
 version: "3.9"
-# Define a versão do Docker Compose. A versão 9 é estável e compatível com os recursos modernos.
+# Define a versão do Docker Compose. A versão 3.9 é estável e compatível com os recursos modernos.
 
 services:
   rabbitmq:
