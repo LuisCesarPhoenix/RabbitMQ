@@ -19,36 +19,29 @@ b)Perder dados persistentes.
 c)Problemas com o .erlang.cookie.
 
 Contexto: o arquivo .erlang.cookie
-O RabbitMQ usa um arquivo chamado .erlang.cookie (localizado em /var/lib/rabbitmq/.erlang.cookie) para autenticação interna entre nós 
-do cluster RabbitMQ. Mesmo que você esteja usando só uma instância (sem cluster), ele ainda depende desse arquivo.
+O RabbitMQ usa um arquivo chamado .erlang.cookie (localizado em /var/lib/rabbitmq/.erlang.cookie) para autenticação interna entre nós do cluster RabbitMQ. Mesmo que você esteja usando só uma instância (sem cluster), ele ainda depende desse arquivo.
 
-Esse arquivo precisa ter permissão exata 600 (ou seja, apenas o dono pode ler e escrever). E o dono precisa ser o usuário do 
-RabbitMQ dentro do container, que geralmente é rabbitmq (ou UID 999 no Docker Hub).
+Esse arquivo precisa ter permissão exata 600 (ou seja, apenas o dono pode ler e escrever). E o dono precisa ser o usuário do RabbitMQ dentro do container, que geralmente é rabbitmq (ou UID 999 no Docker Hub).
 
 Mas por que isso dá problema no Docker?
-Quando você monta um volume (por exemplo ./rabbitmq_data:/var/lib/rabbitmq) no Docker, o sistema de arquivos do host (no caso, o 
-Windows via WSL2) entra em cena.
+Quando você monta um volume (por exemplo ./rabbitmq_data:/var/lib/rabbitmq) no Docker, o sistema de arquivos do host (no caso, o Windows via WSL2) entra em cena.
 
 E aí vem os problemas:
 
 O Docker não consegue garantir as permissões 600 automaticamente no volume montado.
 
-E, pior: se o dono do arquivo não for o mesmo UID que o usuário rabbitmq dentro do container (UID 999), o RabbitMQ recusa iniciar 
-com erro de permissão no .erlang.cookie.
+E, pior: se o dono do arquivo não for o mesmo UID que o usuário rabbitmq dentro do container (UID 999), o RabbitMQ recusa iniciar com erro de permissão no .erlang.cookie.
 
 Como resolvemos isso corretamente
-No seu docker-compose.yml, quando você não declara user: 999:999 manualmente, o container sobe como o próprio usuário rabbitmq, que 
-já entende e cuida do .erlang.cookie.
+No seu docker-compose.yml, quando você não declara user: 999:999 manualmente, o container sobe como o próprio usuário rabbitmq, que já entende e cuida do .erlang.cookie.
 
-E no Dockerfile, você não deve tentar sobrescrever ou mexer manualmente no .erlang.cookie, porque o RabbitMQ já faz isso sozinho com 
-segurança.
+E no Dockerfile, você não deve tentar sobrescrever ou mexer manualmente no .erlang.cookie, porque o RabbitMQ já faz isso sozinho com segurança.
 
 Resumo final
 Volume do host montado --> Permissões podem quebrar, principalmente no WSL2
 .erlang.cookie com permissão ≠ 600 --> RabbitMQ não inicia
 Solução	--> Deixa o RabbitMQ criar o volume e o .erlang.cookie internamente, ou usa chown/chmod com UID correto dentro do container
-Se você quiser resetar e garantir que tudo funcione do zero, pode apagar a pasta ./rabbitmq_data e deixar o Docker recriar ela com o 
-volume anônimo. Isso sempre resolve.
+Se você quiser resetar e garantir que tudo funcione do zero, pode apagar a pasta ./rabbitmq_data e deixar o Docker recriar ela com o volume anônimo. Isso sempre resolve.
 
 O editor config, eslint e gitignore não precisa colocar na pasta do rabbit porque não tem código javascript para ser monitorado.
 
