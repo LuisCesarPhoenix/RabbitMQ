@@ -1,5 +1,5 @@
 version: "3.9"
-# Define a versão do Docker Compose. 3.9 é estável e compatível com os recursos modernos.
+# Define a versão do Docker Compose. A versão 9 é estável e compatível com os recursos modernos.
 
 services:
   rabbitmq:
@@ -20,8 +20,8 @@ services:
     # Reinicia o container automaticamente, exceto se ele for parado manualmente.
 
     ports:
-      - "5672:5672"    # Porta para comunicação com aplicações
-      - "15672:15672"  # Porta do painel de administração
+      - "5672:5672"    # Porta para comunicação com outras aplicações e serviços
+      - "15672:15672"  # Porta do painel de administração(Interface web)
 
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
