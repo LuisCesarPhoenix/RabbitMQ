@@ -9,7 +9,7 @@ RUN rabbitmq-plugins enable --offline \
     rabbitmq_mqtt \
     rabbitmq_federation_management \
     rabbitmq_stomp
-# Ativa plugins importantes antes da inicialização
+# - rabbitmq-plugins enable --offline: Ativa plugins importantes antes da inicialização
 # - rabbitmq_management: interface web de gerenciamento
 # - rabbitmq_mqtt: suporte ao protocolo MQTT
 # - rabbitmq_federation_management: gerencia federação entre brokers
