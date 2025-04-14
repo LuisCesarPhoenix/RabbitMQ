@@ -1,52 +1,65 @@
-version: "3.9"
-# Define a versão do Docker Compose. A versão 3.9 é estável e compatível com os recursos modernos.
+# version: "3.9"
+# Define a versão do Docker Compose, garantindo suporte a recursos modernos.
 
 services:
   rabbitmq:
-    build:
-      context: .
-      # Define que o Dockerfile está no diretório atual.
-      args:
-        RABBITMQ_VERSION: ${RABBITMQ_VERSION}
-        # Passa a versão do RabbitMQ definida no .env para o build.
+    container_name: ${RABBITMQ_CONTAINER_NAME}
+    # Define o nome do container a partir da variável no .env.
 
     image: rabbitmq-custom:${RABBITMQ_VERSION}
-    # Nomeia a imagem criada com base na versão fornecida.
+    # Usa uma imagem customizada do RabbitMQ baseada na versão definida.
 
-    container_name: ${RABBITMQ_CONTAINER_NAME}
-    # Define o nome do container conforme a variável de ambiente.
-
-    restart: unless-stopped
-    # Reinicia o container automaticamente, exceto se ele for parado manualmente.
-
-    ports:
-      - "5672:5672"    # Porta para comunicação com outras aplicações e serviços
-      - "15672:15672"  # Porta do painel de administração(Interface web)
-
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      # Define o usuário do RabbitMQ usando a variável do .env.
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-      # Define a senha do RabbitMQ usando a variável do .env.
-
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-      # Monta o volume para persistência dos dados do RabbitMQ.
+    build:
+      context: .
+      # Usa o diretório atual como contexto de build.
+      args:
+        RABBITMQ_VERSION: ${RABBITMQ_VERSION}
+        # Passa a versão do RabbitMQ como argumento para o Dockerfile.
 
     env_file:
       - .env
-      # Carrega as variáveis de ambiente a partir do arquivo .env.
+      # Carrega variáveis de ambiente do arquivo .env.
+
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      # Define o usuário padrão do RabbitMQ.
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      # Define a senha padrão do RabbitMQ.
+
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      # Mapeia a porta do serviço de mensagens (AMQP).
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+      # Mapeia a porta da interface web de gerenciamento.
+
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      # Cria um volume persistente para salvar os dados da fila.
+
+    restart: unless-stopped
+    # Reinicia o container automaticamente, exceto se parado manualmente.
 
     networks:
       - pyservice_default
-      # Conecta o container à rede personalizada pyservice_default.
+      # Conecta o container à rede externa compartilhada com outros serviços.
+
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      # Verifica se o RabbitMQ está funcionando com um comando ping.
+      interval: 30s
+      # Executa o teste de saúde a cada 30 segundos.
+      timeout: 10s
+      # Aguarda até 10 segundos por uma resposta do teste.
+      retries: 5
+      # Tenta o teste 5 vezes antes de marcar como não saudável.
 
 volumes:
   rabbitmq_data:
-  # Define o volume nomeado usado para persistência dos dados do RabbitMQ.
+  # Declara o volume nomeado para persistência de dados do RabbitMQ.
 
 networks:
   pyservice_default:
     name: pyservice_default
+    # Define o nome da rede externa que será usada.
     external: true
-    # Usa uma rede já existente chamada pyservice_default, útil para conectar com outros containers.
+    # Usa uma rede Docker existente ao invés de criar uma nova.
