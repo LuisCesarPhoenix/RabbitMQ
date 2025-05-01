@@ -1,4 +1,4 @@
-docker exec -it rabbitmq chown -R rabbitmq:rabbitmq /var/lib/rabbitmq
+docker exec -it -t rabbitmq chown -R rabbitmq:rabbitmq /var/lib/rabbitmq
 
 Explicação linha por linha:
 1)docker exec: Executa um comando dentro de um container Docker em execução.
@@ -40,8 +40,8 @@ E no Dockerfile, você não deve tentar sobrescrever ou mexer manualmente no .er
 Resumo final
 Volume do host montado --> Permissões podem quebrar, principalmente no WSL2
 .erlang.cookie com permissão ≠ 600 --> RabbitMQ não inicia
-Solução	--> Deixa o RabbitMQ criar o volume e o .erlang.cookie internamente, ou usa chown/chmod com UID correto dentro do container
+Solução	--> Deixe o RabbitMQ criar o volume e o .erlang.cookie internamente ou use chown/chmod com UID correto dentro do container
 Se você quiser resetar e garantir que tudo funcione do zero, pode apagar a pasta ./rabbitmq_data e deixar o Docker recriar ela com o volume anônimo. Isso sempre resolve.
 
-O editor config, eslint e gitignore não precisa colocar na pasta do rabbit porque não tem código javascript para ser monitorado.
+Não precisa colocar o editor config e eslint na pasta do rabbit porque não tem código javascript para ser monitorado.
 
