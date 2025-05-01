@@ -4,7 +4,7 @@
 services:
   rabbitmq:
     container_name: ${RABBITMQ_CONTAINER_NAME}
-    # Define o nome do container a partir da variável no .env.
+    # Define o nome do container a partir da variável no .env .
 
     image: rabbitmq-custom:${RABBITMQ_VERSION}
     # Usa uma imagem customizada do RabbitMQ baseada na versão definida.
@@ -18,7 +18,7 @@ services:
 
     env_file:
       - .env
-      # Carrega variáveis de ambiente do arquivo .env.
+      # Carrega variáveis de ambiente do arquivo .env .
 
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
